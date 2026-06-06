@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Edit Profile — SocialApp</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="index.html" class="navbar-logo">Social<span>App</span></a>
+      <div class="navbar-links">
+        <a href="profile.html">← Back to Profile</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="form-box" style="max-width:520px">
+    <h2 class="form-title">Edit Profile ✏️</h2>
+    <p class="form-subtitle">Update your profile information</p>
+
+    <div id="error" class="alert alert-error" style="display:none"></div>
+    <div id="success" class="alert alert-success" style="display:none"></div>
+
+    <!-- Profile Picture Preview -->
+    <div style="text-align:center;margin-bottom:24px">
+      <img id="profilePreview" src=""
+        style="width:100px;height:100px;border-radius:50%;object-fit:cover;
+               border:3px solid #e94560;margin-bottom:12px"
+        onerror="this.src='https://via.placeholder.com/100?text=U'"
+      />
+      <br/>
+      <label for="profilePic"
+        style="cursor:pointer;color:#e94560;font-size:14px;font-weight:600">
+        📷 Change Profile Picture
+      </label>
+      <input type="file" id="profilePic" accept="image/*"
+        style="display:none" />
+    </div>
+
+    <form id="editForm">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" id="name" placeholder="Your full name" />
+      </div>
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="username" placeholder="yourhandle" />
+      </div>
+      <div class="form-group">
+        <label>Bio</label>
+        <textarea id="bio" rows="3"
+          placeholder="Tell people about yourself... (max 150 chars)"
+          maxlength="150"
+          style="resize:none"></textarea>
+        <small style="color:#888;font-size:12px">
+          <span id="bioCount">0</span>/150 characters
+        </small>
+      </div>
+      <button type="submit" id="submitBtn" class="btn btn-primary btn-full">
+        Save Changes
+      </button>
+    </form>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    requireAuth()
+
+    const currentUser = getUser()
+
+    // Pre-fill form with current user data
+    document.getElementById('name').value = currentUser.name || ''
+    document.getElementById('username').value = currentUser.username || ''
+    document.getElementById('bio').value = currentUser.bio || ''
+    document.getElementById('profilePreview').src = getImageUrl(currentUser.profilePic)
+    document.getElementById('bioCount').textContent = (currentUser.bio || '').length
+
+    // Bio character counter
+    document.getElementById('bio').addEventListener('input', (e) => {
+      document.getElementById('bioCount').textContent = e.target.value.length
+    })
+
+    // Show preview when new picture selected
+    document.getElementById('profilePic').addEventListener('change', (e) => {
+      const file = e.target.files[0]
+      if (file) {
+        const reader = new FileReader()
+        reader.onload = (ev) => {
+          document.getElementById('profilePreview').src = ev.target.result
+        }
+        reader.readAsDataURL(file)
+      }
+    })
+
+    // Submit form
+    document.getElementById('editForm').addEventListener('submit', async (e) => {
+      e.preventDefault()
+
+      const btn = document.getElementById('submitBtn')
+      const errorDiv = document.getElementById('error')
+      const successDiv = document.getElementById('success')
+
+      errorDiv.style.display = 'none'
+      successDiv.style.display = 'none'
+
+      try {
+        btn.textContent = 'Saving...'
+        btn.disabled = true
+
+        // Use FormData because we might be uploading a new picture
+        const formData = new FormData()
+        formData.append('name', document.getElementById('name').value)
+        formData.append('username', document.getElementById('username').value)
+        formData.append('bio', document.getElementById('bio').value)
+
+        const picFile = document.getElementById('profilePic').files[0]
+        if (picFile) {
+          formData.append('profilePic', picFile)
+        }
+
+        const updatedUser = await apiCall('/users/update/me', 'PUT', formData, true)
+
+        // Update localStorage with new user info
+        const newUserData = { ...currentUser, ...updatedUser }
+        localStorage.setItem('user', JSON.stringify(newUserData))
+
+        successDiv.textContent = 'Profile updated successfully!'
+        successDiv.style.display = 'block'
+
+        setTimeout(() => {
+          window.location.href = 'profile.html'
+        }, 1500)
+
+      } catch (error) {
+        errorDiv.textContent = error.message
+        errorDiv.style.display = 'block'
+        btn.textContent = 'Save Changes'
+        btn.disabled = false
+      }
+    })
+  </script>
+</body>
+</html>

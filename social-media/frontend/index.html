@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Feed — SocialApp</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="index.html" class="navbar-logo">Social<span>App</span></a>
+      <div class="navbar-links">
+        <span class="nav-username" id="navUsername"></span>
+        <a href="create-post.html">+ Post</a>
+        <a href="search.html">🔍 Search</a>
+        <a href="profile.html">👤 Profile</a>
+        <a href="#" id="logoutBtn" class="btn-primary"
+          style="padding:7px 16px;border-radius:20px;color:#fff;background:#e94560">
+          Logout
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div style="max-width:600px;margin:0 auto">
+      <div id="feed"></div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/feed.js"></script>
+</body>
+</html>

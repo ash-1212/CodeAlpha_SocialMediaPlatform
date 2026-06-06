@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create Post — SocialApp</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="index.html" class="navbar-logo">Social<span>App</span></a>
+      <div class="navbar-links">
+        <a href="index.html">← Back to Feed</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="form-box" style="max-width:520px">
+    <h2 class="form-title">Create New Post 📸</h2>
+    <p class="form-subtitle">Share a moment with the world</p>
+
+    <div id="error" class="alert alert-error" style="display:none"></div>
+    <div id="success" class="alert alert-success" style="display:none"></div>
+
+    <!-- Image Preview -->
+    <div style="margin-bottom:16px;text-align:center">
+      <img id="preview" src=""
+        style="display:none;width:100%;border-radius:12px;max-height:300px;object-fit:cover;margin-bottom:12px"
+      />
+    </div>
+
+    <form id="postForm">
+      <div class="form-group">
+        <label>Choose Image *</label>
+        <input type="file" id="image" accept="image/*" required
+          style="padding:10px;border:1px dashed #ddd;border-radius:8px;width:100%"
+        />
+      </div>
+      <div class="form-group">
+        <label>Caption (optional)</label>
+        <textarea id="caption" rows="3"
+          placeholder="Write a caption..."
+          style="resize:none"
+        ></textarea>
+      </div>
+      <button type="submit" id="submitBtn" class="btn btn-primary btn-full">
+        Share Post
+      </button>
+    </form>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    requireAuth()
+
+    // Show image preview when file selected
+    document.getElementById('image').addEventListener('change', (e) => {
+      const file = e.target.files[0]
+      if (file) {
+        const reader = new FileReader()
+        reader.onload = (ev) => {
+          const preview = document.getElementById('preview')
+          preview.src = ev.target.result
+          preview.style.display = 'block'
+        }
+        reader.readAsDataURL(file)
+      }
+    })
+
+    // Submit post
+    document.getElementById('postForm').addEventListener('submit', async (e) => {
+      e.preventDefault()
+      const btn = document.getElementById('submitBtn')
+      const errorDiv = document.getElementById('error')
+      const successDiv = document.getElementById('success')
+      const imageFile = document.getElementById('image').files[0]
+      const caption = document.getElementById('caption').value
+
+      if (!imageFile) {
+        errorDiv.textContent = 'Please select an image'
+        errorDiv.style.display = 'block'
+        return
+      }
+
+      try {
+        btn.textContent = 'Sharing...'
+        btn.disabled = true
+
+        // Use FormData because we're sending a file
+        const formData = new FormData()
+        formData.append('image', imageFile)
+        formData.append('caption', caption)
+
+        await apiCall('/posts', 'POST', formData, true)
+
+        successDiv.textContent = 'Post shared successfully!'
+        successDiv.style.display = 'block'
+
+        setTimeout(() => {
+          window.location.href = 'index.html'
+        }, 1500)
+      } catch (error) {
+        errorDiv.textContent = error.message
+        errorDiv.style.display = 'block'
+        btn.textContent = 'Share Post'
+        btn.disabled = false
+      }
+    })
+  </script>
+</body>
+</html>
