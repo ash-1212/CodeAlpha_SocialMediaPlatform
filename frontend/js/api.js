@@ -1,6 +1,6 @@
 const BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:5000/api'
-  : 'https://octohug-backend.vercel.app/api'; 
+  : 'https://code-alpha-social-media-platform-bay.vercel.app/api';
 
 // Get token from localStorage
 const getToken = () => localStorage.getItem('token')
