@@ -17,7 +17,16 @@ const app = express();
 // Connect to MongoDB Database
 connectDB();
 
-app.use(cors());
+// Enable CORS explicitly for your Netlify frontend
+app.use(cors({
+  origin: ['https://octohug.netlify.app', 'http://localhost:3000', 'http://localhost:127.0.0.1:5500'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Handle preflight requests explicitly
+app.options('*', cors());
 app.use(express.json());
 
 // Serve uploaded images publicly
