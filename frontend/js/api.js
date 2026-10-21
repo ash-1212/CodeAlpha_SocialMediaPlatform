@@ -1,6 +1,6 @@
 const BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:5000/api'
-  : 'https://your-backend-app-name.onrender.com/api'; // <--- We will replace this URL once your backend is deployed on Render!
+  : 'https://octohug-backend.vercel.app/'; 
 
 // Get token from localStorage
 const getToken = () => localStorage.getItem('token')
